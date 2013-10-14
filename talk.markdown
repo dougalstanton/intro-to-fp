@@ -13,6 +13,23 @@ input to output.
 
     in -----> [ function ] -----> out
 
+Functional programming uses functions and immutable data. There are no
+variables which get updated, only values which are computed. So
+everything works like this:
+
+`````c
+int square(int n) { return n*n; }
+`````
+
+The language runtime is constructed to take advantage of this fact ---
+pervasive sharing of values and simplified garbage collection.
+
+Expressions are the basic building block. They are first class values;
+almost anything that you could do with an `int` in C is possible with a
+function. You can store them in data structures, you can partially apply
+them, you can pass them as arguments or return them as results. You can
+compose them...
+
 # No more FOR loops
 
 The big win for functional programming is code reuse. I know that's
@@ -31,17 +48,36 @@ string.
 
     length :: String -> Int
 
+It works like this:
+
+    > length "Haskell"
+    7
+
 We can apply it to a single string, but we can just as easily apply it
-to a whole list of strings.
+to a whole list of strings. We do that by passing `length` to another
+function, which does the looping part. A function which operates on
+other functions is called a "higher order function" and `map` is one of
+the simplest of many:
 
     -- changing the contents of a list
     > mylist = ["one", "two", "three"]
     ["one", "two", "three"]
+
     > map length mylist
     [3, 3, 5]
 
-The `map` applies `length` to each element of the list in turn. But it
-doesn't have to operate on lists --- it could be trees.
+The `map` applies `length` to each element of the list in turn. When it
+gets to the end of the list it stops; we don't need to worry about
+running off the end (or stopping one short).
+
+(Another way of thinking about `map` is that instead of stepping over
+each element in the list and converting it, it changes `length`. Where
+previously `length :: String -> Int` the new function is `map length ::
+[String] -> [Int]`. This is called "lifting", if you're interested.)
+
+But it doesn't have to operate on lists --- it can also step through
+trees. The function `map` doesn't really mind what shape of structure it
+is stepping through.
 
     -- changing the contents of a tree
     > mytree = T "Sun" [T "Earth" [T "Moon"]
@@ -49,6 +85,8 @@ doesn't have to operate on lists --- it could be trees.
     ...
     > map length mytree
     ...
+
+(This time the function `map length :: Tree String -> Tree Int`.)
 
 Sometimes you are dealing with data that might not be there --- in C
 this is normally handled with a `NULL` pointer. Checking that this data
@@ -61,6 +99,8 @@ this too, operating on collections of zero-or-one elements.
     > map length (Just "Fishing")
     Just 7
 
+(Here we've lifted to `map length :: Maybe String -> Maybe Int`.)
+
 Or you might have one of two types of data but you only want to process
 one type and leave the other one as it is. Again `map` is the
 over-arching abstraction.
@@ -71,6 +111,8 @@ over-arching abstraction.
     > map length (Right "Good!")
     Right 5
 
+(Again, `map length :: Either String String -> Either String Int`.)
+
 This is just one simple way that we can really reuse code. Not only does
 `length` never have to be rewritten (obviously) but neither does the
 code to loop over a list or a tree or any other shape containing data.
@@ -79,26 +121,46 @@ Where next? The world is not simply changing lists of A into lists of B.
 I don't want to beat this point to death but we'll cover one more point:
 collecting together lots of data into a single value.
 
-    int sum = 0;
-    for (int i = 0; i++; i < SIZE)
-        sum = sum + arr[i];
+`````c
+int sum = 0;
+for (int i = 0; i++; i < SIZE)
+    sum = sum + arr[i];
+`````
 
 Or maybe we want to multiply all the values?
 
-    int product = 1;
-    for (int i = 0; i++; i < SIZE)
-        product = product * arr[i];
+`````c
+int product = 1;
+for (int i = 0; i++; i < SIZE)
+    product = product * arr[i];
+`````
+You can see there's a lot of repetition there. And lots of basic tasks
+follow this pattern --- getting the largest or smallest value out of a
+collection; checking if all booleans are TRUE, or if any are TRUE;
+concatenating strings; finding the first value above a threshold; and
+so on.
 
 Oh, we'll just do it once and for all --- fold all the values together:
 
-    > foldr (+) 0 [1..10]
+    > fold (+) 0 [1..10]
     55
-    > foldr (*) 1 [1..10]
+    > fold (*) 1 [1..10]
     3628800
 
 Actually, this already seems like a lot of work having to remember which
 number goes with multiply and which number goes with add when starting
 off. We should abstract that away too.
+
+| Category| op   | empty |
+|---------|------|-------|
+| Product | *    | 1     |
+| Sum     | +    | 0     |
+| Maximum | max  | -inf  |
+| Any     | (||) | False |
+
+Rather than remembering which operations and empty values go together to
+perform which calculations we can create some common abstractions, and
+tell the compiler we expect it to fold over values of that type.
 
     > fold (<>) empty (map Product [1..10])
     3628800
