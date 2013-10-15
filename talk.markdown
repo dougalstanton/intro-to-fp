@@ -7,28 +7,43 @@ languages of Python and Lua. Today I will be talking about programming
 with Haskell, which is the opposite in nearly every way to those
 languages.
 
+# The basics of FP
+
 Functional programming is ... programming with functions. Or expressions
 if you prefer. You all know what a function looks like, a mapping from
 input to output.
 
     in -----> [ function ] -----> out
 
-Functional programming uses functions and immutable data. There are no
-variables which get updated, only values which are computed. So
-everything works like this:
-
-`````c
-int square(int n) { return n*n; }
-`````
-
-The language runtime is constructed to take advantage of this fact ---
-pervasive sharing of values and simplified garbage collection.
+Functional programming uses only pure functions and immutable data. This
+is enforced by the type system but with minimal requirements on the user.
+Everything has a known type when compiled but the user often doesn't have
+to specify the types: they can be inferred by the compiler.
 
 Expressions are the basic building block. They are first class values;
 almost anything that you could do with an `int` in C is possible with a
 function. You can store them in data structures, you can partially apply
 them, you can pass them as arguments or return them as results. You can
 compose them...
+
+# What does Haskell look like?
+
+The traditional introduction looks exactly like you might hope it would.
+
+    main = putStrLn "Hello, World!"
+
+Values are named on the left, and their implementations appear on the
+right hand side of the equals sign. It has a mathematical air to it.
+Values and functions are defined in the same way:
+
+    square n = n*n
+
+    pi = 3 -- approximately
+
+Function arguments go on the left, and a double-dash starts a comment to
+the end of the line. It's all very minimalist and borrows a lot from
+mathematical notation. You don't have to supply parentheses when applying
+functions to their arguments, for example.
 
 # No more FOR loops
 
@@ -42,6 +57,9 @@ all the time. Why not just write them once? And not just for linear data
 either --- if you want to transform the contents of a tree it's
 basically the same thing. In fact, any container which holds a value can
 be transformed.
+
+
+## Strings in Lists
 
 Example: The function `length` counts how many characters there are in a
 string.
@@ -75,6 +93,8 @@ each element in the list and converting it, it changes `length`. Where
 previously `length :: String -> Int` the new function is `map length ::
 [String] -> [Int]`. This is called "lifting", if you're interested.)
 
+## Strings in Trees
+
 But it doesn't have to operate on lists --- it can also step through
 trees. The function `map` doesn't really mind what shape of structure it
 is stepping through.
@@ -87,6 +107,8 @@ is stepping through.
     ...
 
 (This time the function `map length :: Tree String -> Tree Int`.)
+
+## Strings sometimes Absent
 
 Sometimes you are dealing with data that might not be there --- in C
 this is normally handled with a `NULL` pointer. Checking that this data
@@ -105,6 +127,8 @@ Or you might have one of two types of data but you only want to process
 one type and leave the other one as it is. Again `map` is the
 over-arching abstraction.
 
+## Some strings, not Others
+
     -- changing one of two options
     > map length (Left "An error!")
     Left "An error!"
@@ -116,6 +140,8 @@ over-arching abstraction.
 This is just one simple way that we can really reuse code. Not only does
 `length` never have to be rewritten (obviously) but neither does the
 code to loop over a list or a tree or any other shape containing data.
+
+# Advanced FOR loops
 
 Where next? The world is not simply changing lists of A into lists of B.
 I don't want to beat this point to death but we'll cover one more point:
@@ -307,3 +333,4 @@ Parser<string, Tuple2<string, string>>::type single_pair =
 `````
 
 <http://spikebucket.blogspot.com/2007/09/building-maps-with-parsnip.html>
+
