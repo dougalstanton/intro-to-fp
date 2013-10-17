@@ -36,22 +36,13 @@ Let's talk about some simple code.
 
 When was the last time you wrote a FOR loop? In C and C++ you need them all the time. Even the simplest FOR loop can have awkward little problems. Starting at the beginning and going to the end of an array is such a simple thing! But we write FOR loops so often that there will inevitably be mistakes.
 
-Why not just write FOR loops once? This is a common idea and has made it into many recent languages --- even C++11, in fact. The functional language equivalent is typically called `map`. The sad fact is that most languages don't let you add it yourself because you can't define and use your own control flows.
+Why not just write FOR loops once? This is a common idea and has made it into many recent languages --- even C++, in fact. It is often called `foreach`. The functional language equivalent is typically called `map`. 
 
-The Haskell implementation is very straightforward though.
-
-And not just for linear data either --- if you want to transform the contents of a tree it's basically the same thing. In fact, any container which holds a value can be transformed.
-
+The sad fact is that a lot of languages don't let you add it yourself because you can't define and use your own control flows. The Haskell implementation is very straightforward though. The definition of `map` takes a function and a list. Each element in the list is transformed by the function. A new list is returned.
 
 ## Strings in Lists
 
-Example: The function `length` counts how many characters there are in a string.
-
-
-It works like this:
-
-
-We can apply it to a single string, but we can just as easily apply it to a whole list of strings. We do that by passing `length` to another function, which does the looping part. A function which operates on other functions is called a "higher order function" and `map` is one of the simplest of many:
+The function `length` counts how many characters there are in a string. We can apply it to a single string, but we can just as easily apply it to a whole list of strings. We do that by passing `length` to another function, which does the looping part. A function which operates on other functions is called a "higher order function" and `map` is one of the simplest of many:
 
 
 The `map` applies `length` to each element of the list in turn. When it gets to the end of the list it stops; we don't need to worry about running off the end (or stopping one short).
