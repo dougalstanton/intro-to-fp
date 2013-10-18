@@ -38,7 +38,45 @@ When was the last time you wrote a FOR loop? In C and C++ you need them all the 
 
 Why not just write FOR loops once? This is a common idea and has made it into many recent languages --- even C++, in fact. It is often called `foreach`. The functional language equivalent is typically called `map`. 
 
-The sad fact is that a lot of languages don't let you add it yourself because you can't define and use your own control flows. The Haskell implementation is very straightforward though. The definition of `map` takes a function and a list. Each element in the list is transformed by the function. A new list is returned.
+The sad fact is that a lot of languages don't let you add it yourself because you can't define and use your own control flows. The Haskell implementation is very straightforward though. The definition of `map` takes a function and a list. Each element in the list is transformed by the function. A new list is returned. A function that takes another function as an argument is called a "higher-order function" and map is about the simplest one that does something interesting.
+
+## Power of restricted FOR
+
+I said many other languages have a similar construct so it's not impressive that functional languages do too. And truth be told the MAP function I've shown is quite restrictive. It has the power to transform individual elements of a collection but each element is computed in isolation. You can't refer to adjacent elements or keep a history as you progress through the elements. The output is always the same size and shape as the input.
+
+This has some merit: we know that the order of computation is not important. In fact, if each element transformation is a lengthy process they can be split across worker processes running in parallel or even across many worker machines.
+
+Parallelising computation is as easy as using PARMAP instead of MAP because the execution does not depend on other values or the order in which they complete. It's that easy to take advantage of multi-core processors because the language can guarantee the non-interference of the processes.
+
+# Alternative FOR loops
+
+The standard definition of MAP provides these guarantees of "non-interference" but sometimes a bit of interference is useful. Often you want to traverse values in order, remembering what you've seen --- summing values, finding the largest or smallest element and so on.
+
+We often see this idiom with FOR loops where an accumulator value is initialised (to zero, to false) and then we step through each element, comparing the accumulator to the current element in the collection. In the process we don't often change the elements of the collection. We are only interested in the accumulator at the end. In essence what we've done is reduced the collection down to a single value.
+
+## FOLDing
+
+This control flow is often called a FOLD. We fold the whole list down into a single thing. FOLD is another higher-order function like MAP but more interesting. The function it takes as an argument is what we use to select a new value for the accumulator. If we supply an addition function each step produces the sum of the current accumulator and the current element; at the next step result of the previous step is added to the next element. The result at the end of the FOLD operation is a sum of all the values. The only other thing fold needs is the initial value of the accumulator, which for a summation would be zero.
+
+FOLD is an abstraction of many important functions --- MAXIMUM, MINIMUM, SUM, PRODUCT, ANY, ALL. 
+
+One of the most interesting things about FOLD is that it's strictly more powerful than MAP. You can implement MAP with FOLD without loss of power. If FOLD reduces a collection to a single value, maybe it helps to think of that single value being another collection? Indeed, it could be the *same* collection.
+
+## Making FOLDs parallel
+
+What we lost with the ability to drag an accumulator across all our collection is that there is now an execution order and a data dependency. You can't process the second element until the first has been processed, etc.
+
+Well, maybe you can. The largest element in a collection is the same if we start from the left or the right, or if we find the largest from all the odd values and the largest from all the even values and then compare those two.
+
+But subtraction doesn't work. If we start from the left or the right we get different answers. The same happens with division. Anywhere you need parenthese to specify the order of execution is a sign that it matters. Maybe there's something about the properties of these functions? (Associativity, associativity, associativity...)
+
+Given an associative operator we can create lots of mini-FOLDs with their own accumulators, which can be run in parallel and their results FOLDed together and so on until we reach a final answer. A truly parallel fold would have an execution shaped like a tree.
+
+If this idea is interesting you should look into Fortress, a research language designed for high-performance computing. One of its big ideas was that there would be no linear data and no linear execution because everything can be parallelised if it doesn't depend on neighbouring values.
+
+## Other FOLDs
+
+This gives a little clue to the 
 
 ## Strings in Lists
 
