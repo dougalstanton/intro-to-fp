@@ -11,7 +11,13 @@ date: October 2013
              strict - non-strict ('lazy')
         interpreted - compiled (generally)
 
-
+> And you're right: we were not out to win over the Lisp programmers;
+> we were after the C++ programmers.  We managed to drag a lot of them
+> about halfway to Lisp.  Aren't you happy?
+> 
+> --Guy Steele
+        
+        
 
 $$ f : X \to Y $$
 
