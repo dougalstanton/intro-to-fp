@@ -32,8 +32,8 @@ But not much
 
 ## Haskell is...
 
-> a polymorphically statically typed, lazy, purely functional language,
-> quite different from most other programming languages 
+> a polymorphically statically typed, [lazy](#laziness), purely functional
+> language, quite different from most other programming languages
 
 ## Data
 
@@ -60,6 +60,12 @@ square x = x*x
 `````haskell
 nine = square 3
 `````
+
+## Fun & Profit
+
+Haskell in the Browser: <http://tryhaskell.org>
+
+Installation: <http://www.haskell.org/platform>
 
 # Code Reuse
 
@@ -366,3 +372,23 @@ Why not?
 
 # ?
 
+## Laziness
+
+Execution "outside first" instead of "inside first".
+
+`````c
+/* C has strict evaluation */
+int zero (int n)
+{
+    return 0;
+}
+
+int result = zero (5/0);
+`````
+
+`````haskell
+-- Haskell has lazy evaluation
+zero n = 0
+
+result = zero (5/0)
+`````
