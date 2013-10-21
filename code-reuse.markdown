@@ -32,8 +32,8 @@ But not much
 
 ## Haskell is...
 
-> a polymorphically statically typed, [lazy](#laziness), purely functional
-> language, quite different from most other programming languages
+> ...a polymorphically statically typed, [lazy](#laziness), [purely
+> functional](#purity) language...
 
 ## Data
 
@@ -142,13 +142,13 @@ map (+1) numbers
 ## Just a function
 
 `````haskell
-map    f           []     = []
-map    f           (x:xs) = f x : map f xs
+map f []     = []
+map f (x:xs) = f x : map f xs
 `````
 
 ## Higher Order Function
 
-(HoF)
+<img src="images/hoff.jpg" style="border: none;" />
 
 ## Why MAP?
 
@@ -180,9 +180,9 @@ for (unsigned int i = 0; i++; i < SIZE)
 ## What Changed?
 
 `````c
-int sum = 0;                            // accumulator (already set)
+int sum = 0;                            // accumulator
 for (unsigned int i = 0; i++; i < SIZE)
-    sum = sum + numbers[i];             // outcome depends on previous step
+    sum = sum + numbers[i];             // join with accumulator
 `````
 
 ## Fold
@@ -211,8 +211,8 @@ all_true = fold (&&) True booleans
 ## (Just another function)
 
 `````haskell
-fold    f                z    []     =  z
-fold    f                z    (x:xs) =  f x (fold f z xs)
+fold f z []     = z
+fold f z (x:xs) = f x (fold f z xs)
 `````
 
 # What about Pixar?
@@ -265,25 +265,13 @@ if (!user)
     return ERR_BAD_PASS;
 `````
 
-## Make flow explicit
+## Single computation
 
 `````c
 summary * login_details = lookup_username(name);
 if (!login_details)
 {
     return ERR_BAD_USER;
-}
-else
-{
-    profile * user = validate_password(pass, login_details);
-    if (!user)
-    {
-        return ERR_BAD_PASS;
-    }
-    else
-    {
-        // ...
-    }
 }
 `````
 
@@ -304,9 +292,7 @@ lookup_username   :: Username -> MaybeNot UserSummary
 validate_password :: Password -> UserSummary -> MaybeNot Profile
 `````
 
-
-
-## Bind
+## Bind: `>>=`
 
 `````haskell
 data MaybeNot a    = Error Int | Result a
@@ -383,12 +369,20 @@ int zero (int n)
     return 0;
 }
 
-int result = zero (5/0);
+int result = zero (5/0); /* Error! Divide by zero! */
 `````
 
 `````haskell
 -- Haskell has lazy evaluation
 zero n = 0
 
-result = zero (5/0)
+result = zero (5/0) -- returns 0
 `````
+
+## Purity
+
+*   Mathematical functions: $$ f : X \to Y $$
+*   Output depends only on input
+*   No global variables
+*   No mutable state
+*   Impure I/O not possible from pure functions
