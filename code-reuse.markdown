@@ -35,6 +35,14 @@ But not much
 > ...a polymorphically statically typed, [lazy](#laziness), [purely
 > functional](#purity) language...
 
+## Too Harsh?
+
+> The best ghc bug ever involved a dev version of the compiler deleting your
+> source file if it contained a type error.
+
+--- Bryan O'Sullivan, [@bos1337](https://twitter.com/bos31337/status/116372971509121025)
+
+
 ## Data
 
 `````haskell
