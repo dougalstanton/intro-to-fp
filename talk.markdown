@@ -2,33 +2,53 @@
 % Dougal Stanton <feedback@dougalstanton.net>
 % October 2013
 
-This talk is partially a response to Rob's recent presentation about Python and Lua. Today I will be programming with Haskell, which is the opposite in nearly every way to those languages.
+Rob recently gave a talk on Python and Lua in which it was mentioned that I did functional programming because I was "weird". And that sounds like a challenge, so let's talk about functional programming!
+
+# Overview
+
+You want to know what I'll be talking about today but I also want to provide an element of mystery so you don't all walk out straight away. The language I'll be using as an example today is Haskell, so I'll show a little bit of that in isolation. I'll be talking about recycling, about maps, about folds and about binds.
+
+# Haskell intro
+
+Haskell is described this way on the Haskell.org website. The important thing to take away from this description is that it is **statically typed**. If you type nonsense then the compiler can reject your code. In fact the compiler has been known to take that to extremes that most people would reject as going "too far".
+
+Let's look at the syntax. First we have the definition of a data type, a union type which can store either an email address or a telephone number, both of which are represented as strings.
+
+The description on the previous slide mentioned polymorphism so let's look at that next. This is the definition of a generic binary tree: the `a` is a _type variable_ which is instantiated with a particular type so we can have trees of integers, trees of strings, trees of contact details and so on.
+
+To operate on data we need functions, which are defined in the mathematical model: on the left is the name of the function and any parameters it takes. To the right of the equiality sign is the implementation --- we get the square of `x` by multiply by itself. Really minimal, no syntactic fuss getting in the way, no semicolons or braces where they're not needed.
+
+Finally we have a variable that contains the result of squaring 3. Again minimal clutter: no parentheses to apply the function to the argument. We don't need to define the type of the variable `nine` --- the compiler can do that on its own because it knows what `square 3` produces.
+
+If you want to play around with Haskell in your own time you can try haskell in the browser or you can download and install a full set of compiler and libraries called the Haskell Platform.
 
 # Reduce - Reuse - Recycle
 
-I'm not going to talk about programming in Haskell though, but about code reuse. It is my belief that most programming languages make code reuse extremely difficult. The reason for this is that while most languages let you define your own data structures ... and your own procedures to work on the data ... they don't let you define your own control structures. The result is that we end up rewriting the mechanisms to control our procedures every day.
+The main motivation for today is code reuse, because everyone wants it and it applies across all languages. It's something we can all relate to. My definition for code reuse today is --- once I've written it once, can I avoid writing it again?
 
-The problem of control flow is often solved using Design Patterns, which essentially tell you how to re-create the processes you want because you can't just load it in from a library. Design patterns are an indication of a gap which the language itself cannot address.
+Defining reusable data structures is easy in most languages. Generic data structures are often slightly harder (Java generics, C++ templates etc) but still reusable once you've got them.
+
+Procedures can also be reused once written --- in fact, that is the purpose of a named procedure. The `distance` procedure relies on several other predefined procedures which can remain black boxes.
+
+When it comes to control flow we must repeat ourselves. This little snippet I've invented ultimately takes a username and a password to authorise the user for a system. But most of the code show is checking to see if each step worked and then conditionally aborting or moving onto the next stage.
+
+The repetition hides what is going on and promotes mistakes. Forgetting to check that a pointer is not null... is a rite of passage for all C programmers. We'll come back to this example later.
 
 # No more FOR loops
 
-Let's look at some simple code.
+Let's look at some really simple code.
 
-When was the last time you wrote a FOR loop? In C and C++ you need them all the time. Even the simplest FOR loop can throw up annoying little problems. Starting at the beginning and going to the end of an array is such a simple thing! But we write FOR loops so often that there will inevitably be mistakes. Can we be sure that the loop shown steps over the whole array but no further?
+With the topic of repetition and reuse in mind, look at this simple code which increments every value in an array called `numbers`. It doesn't do much but there's a lot of code complexity to do it. We've got this superfluous index value `i` which only serves to keep track of where we are in the array.
 
-Why not just write FOR loops once? This is a common idea and has made it into many recent languages --- even C++, in fact. It is often called FOREACH. The functional language equivalent is typically called MAP. 
+What we want is access to the actual elements in the array, not a bookmark. Thankfully the new C++ standard allows us to do this --- no more index value, we just get direct access to the current element of the collection we're looking at.
 
-The sad fact is that unless it's already in the language you probably can't add it yourself. But languages which support the features necessary for good functional programming *can* define their own MAP. The Haskell definition shown is very small: only two lines of code since the type signature is optional. MAP takes as one of its arguments the function it will apply to elements of the list. A function that operates on other functions is called a "higher order function".
+The Haskell equivalent to the FOR loop is called MAP. We talk about mapping a function `(+1)` across the list `numbers`. Unlike the C++ implementation there isn't a requirement for a language change or a compiler update to get MAP. It's just a function (and a very short one too).
 
-## Power of restricted FOR
+Why is MAP interesting? One of its guarantees is that the output only depends on the input. You can see that in the C++ and the Haskell code because you only ever get access to a single element at a time. With a FOR loop in C it would be easy to examine the index and pick up adjacent elements and so on, which MAP prevents from happening. It means we can separate the execution of each step from its neighbours, performing them in any order as necessary. If it's hard work we can perform these computations in parallel since no individual step depends on any other.
 
-I said many other languages have a similar construct so it's not impressive that Haskell does. And truth be told the MAP function I've shown is quite restrictive. It has the power to transform individual elements of a collection but each element is computed in isolation. You can't refer to adjacent elements or keep a history as you progress through the elements. The output is always the same size and shape as the input. The list won't shrink or grow once it's been transformed.
+If we want we can split off chunks of the input to different machines to be computed in parallel, like rendering a movie out of order and then re-assembling the pieces at the end.
 
-(diagram: execution of map)
-
-These restrictions have some merit: we know that the order of computation is not important. In fact, if each computation is a lengthy process it can be split across worker processes running in parallel or even across many worker machines. Think of render farms at Pixar --- many machines operating in parallel to create the independent still frames that make up a movie.
-
-Parallelising computation is as easy as using PARMAP instead of MAP because the execution does not depend on other values or the order in which they complete. It's that easy to take advantage of multi-core processors because the language can guarantee the non-interference of the processes.
+MAP is a function that takes another function as an argument. Such functions are called higher-order functions or HOFs. Defining and using higher-order functions is one of the key features of functional programming.
 
 # Alternative FOR loops
 
