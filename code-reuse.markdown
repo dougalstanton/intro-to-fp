@@ -300,6 +300,15 @@ lookup_username   :: Username -> MaybeNot UserSummary
 validate_password :: Password -> UserSummary -> MaybeNot Profile
 `````
 
+. . .
+
+`````haskell
+case lookup_username name of
+    (Error e)   -> Error e
+    (Result r)  -> validate_password username r
+`````
+
+
 ## Bind: `>>=`
 
 `````haskell
