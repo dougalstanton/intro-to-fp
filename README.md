@@ -12,7 +12,7 @@ instances are being dragged back into Python, C\# etc).
 **talk.markdown** contains the talk that I wrote for the presentation.
 This is what you should read if you want to know what I said.
 
-**code-reuse.markdown** contains the source for the slides, which are
+**slides.markdown** contains the source for the slides, which are
 pretty minimalist and won't really illuminate on their own. You could
 view them alongside the `talk.markdown` file above.
 
